@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --lspu-blue: #1E3A8A;
+  --lspu-yellow: #FACC15;
+  --gco-primary: #1E3A8A;
+  --gco-secondary: #0f172a;
+  --gco-accent: #FACC15;
+  --gco-light: #f8fafc;
+}
+
+/* Mobile / PWA: safe area for notched devices, touch-friendly */
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  @apply bg-[var(--gco-light)] text-gray-800 antialiased;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.safe-area-padding {
+  padding-top: env(safe-area-inset-top);
+}
+/* Touch-friendly: avoid double-tap zoom on buttons, 16px inputs on iOS */
+@media (pointer: coarse) {
+  input, select, textarea {
+    font-size: 16px !important; /* prevents iOS zoom on focus */
+  }
+  button, [type="button"], [type="submit"] {
+    touch-action: manipulation;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-lspu-yellow text-lspu-blue hover:bg-amber-400 font-semibold py-2.5 px-5 rounded-lg transition shadow;
+  }
+  .btn-secondary {
+    @apply border-2 border-lspu-blue text-lspu-blue hover:bg-lspu-blue hover:text-white font-semibold py-2.5 px-5 rounded-lg transition;
+  }
+  .input-field {
+    @apply w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-lspu-blue focus:border-lspu-blue outline-none;
+  }
+  .card {
+    @apply bg-white rounded-xl shadow-lg border border-gray-100 p-6 md:p-8;
+  }
+  .sidebar-active {
+    @apply bg-lspu-yellow text-lspu-blue;
+  }
+}

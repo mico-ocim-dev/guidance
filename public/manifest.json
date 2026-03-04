@@ -1,0 +1,10 @@
+{
+  "name": "GCO Office Management",
+  "short_name": "GCO System",
+  "description": "Guidance & Counseling Office - LSPU Sta. Cruz",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#1e3a8a",
+  "theme_color": "#1e3a8a",
+  "orientation": "portrait-primary"
+}
