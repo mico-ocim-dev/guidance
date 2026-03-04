@@ -21,13 +21,14 @@ export default function MyDocumentRequestsPage() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   function fetchRequests(supabase: ReturnType<typeof createClient>, userId: string, isInitial = false) {
-    supabase
-      .from("document_requests")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => setRequests((data as DocumentRequest[]) ?? []))
-      .finally(() => { if (isInitial) setLoading(false); });
+    Promise.resolve(
+      supabase
+        .from("document_requests")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .then(({ data }) => setRequests((data as DocumentRequest[]) ?? []))
+    ).finally(() => { if (isInitial) setLoading(false); });
   }
 
   function handleRefresh() {

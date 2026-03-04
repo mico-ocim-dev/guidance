@@ -17,23 +17,25 @@ export default function AdminSurveysPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.replace("/auth/login");
-        return;
-      }
-      const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
-      supabase.from("profiles").select("role").eq("id", user.id).single().then(({ data }) => {
-        if (data?.role !== "admin" && !isAdminEmail) {
-          router.replace("/dashboard");
+    Promise.resolve(
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (!user) {
+          router.replace("/auth/login");
           return;
         }
-        setIsAdmin(true);
-        supabase.from("surveys").select("*").order("created_at", { ascending: false }).then(({ data }) => setSurveys((data as Survey[]) ?? []));
-        supabase.from("survey_responses").select("*").then(({ data }) => setResponses((data as SurveyResponse[]) ?? []));
-        supabase.from("survey_questions").select("*").then(({ data }) => setQuestions((data as SurveyQuestion[]) ?? []));
-      });
-    }).finally(() => setLoading(false));
+        const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
+        return supabase.from("profiles").select("role").eq("id", user.id).single().then(({ data }) => {
+          if (data?.role !== "admin" && !isAdminEmail) {
+            router.replace("/dashboard");
+            return;
+          }
+          setIsAdmin(true);
+          supabase.from("surveys").select("*").order("created_at", { ascending: false }).then(({ data }) => setSurveys((data as Survey[]) ?? []));
+          supabase.from("survey_responses").select("*").then(({ data }) => setResponses((data as SurveyResponse[]) ?? []));
+          supabase.from("survey_questions").select("*").then(({ data }) => setQuestions((data as SurveyQuestion[]) ?? []));
+        });
+      })
+    ).finally(() => setLoading(false));
   }, [router]);
 
   function getAverageForQuestion(qId: string): number {

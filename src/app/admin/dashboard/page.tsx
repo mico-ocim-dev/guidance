@@ -44,20 +44,22 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.replace("/auth/login");
-        return;
-      }
-      const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
-      supabase.from("profiles").select("role").eq("id", user.id).single().then(({ data }) => {
-        if (data?.role !== "admin" && !isAdminEmail) {
-          router.replace("/dashboard");
+    Promise.resolve(
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (!user) {
+          router.replace("/auth/login");
           return;
         }
-        setIsAdmin(true);
-      });
-    }).finally(() => setLoading(false));
+        const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
+        return supabase.from("profiles").select("role").eq("id", user.id).single().then(({ data }) => {
+          if (data?.role !== "admin" && !isAdminEmail) {
+            router.replace("/dashboard");
+            return;
+          }
+          setIsAdmin(true);
+        });
+      })
+    ).finally(() => setLoading(false));
   }, [router]);
 
   useEffect(() => {

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import type { Appointment, DocumentRequest } from "@/types/database";
 
-const FALLBACK_FORMS = [
+const FALLBACK_FORMS: { id: string; title: string; form_url: string; image_url?: string | null }[] = [
   { id: "1", title: "Career Interest Inventory", form_url: "#" },
   { id: "2", title: "Session Feedback Form", form_url: "#" },
   { id: "3", title: "Counseling Case Log Sheet", form_url: "#" },
@@ -26,37 +26,39 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user: u } }) => {
-      if (!u) {
-        router.replace("/auth/login");
-        return;
-      }
-      setUser(u);
-      supabase
-        .from("profiles")
-        .select("first_name, last_name, username, role")
-        .eq("id", u.id)
-        .single()
-        .then(({ data }) => setProfile(data ?? null));
-      supabase.rpc("can_claim_admin").then(({ data }) => setCanClaimAdmin(data === true));
-      supabase
-        .from("appointments")
-        .select("*")
-        .eq("user_id", u.id)
-        .order("created_at", { ascending: false })
-        .then(({ data }) => setAppointments((data as Appointment[]) ?? []));
-      supabase
-        .from("document_requests")
-        .select("*")
-        .eq("user_id", u.id)
-        .order("created_at", { ascending: false })
-        .then(({ data }) => setDocRequests((data as DocumentRequest[]) ?? []));
-      supabase
-        .from("qr_forms")
-        .select("id, title, form_url, image_url")
-        .order("sort_order", { ascending: true })
-        .then(({ data }) => setQuickAccessForms((data ?? []).length > 0 ? (data as { id: string; title: string; form_url: string; image_url?: string | null }[]) : FALLBACK_FORMS));
-    }).finally(() => setLoading(false));
+    Promise.resolve(
+      supabase.auth.getUser().then(({ data: { user: u } }) => {
+        if (!u) {
+          router.replace("/auth/login");
+          return;
+        }
+        setUser(u);
+        supabase
+          .from("profiles")
+          .select("first_name, last_name, username, role")
+          .eq("id", u.id)
+          .single()
+          .then(({ data }) => setProfile(data ?? null));
+        supabase.rpc("can_claim_admin").then(({ data }) => setCanClaimAdmin(data === true));
+        supabase
+          .from("appointments")
+          .select("*")
+          .eq("user_id", u.id)
+          .order("created_at", { ascending: false })
+          .then(({ data }) => setAppointments((data as Appointment[]) ?? []));
+        supabase
+          .from("document_requests")
+          .select("*")
+          .eq("user_id", u.id)
+          .order("created_at", { ascending: false })
+          .then(({ data }) => setDocRequests((data as DocumentRequest[]) ?? []));
+        supabase
+          .from("qr_forms")
+          .select("id, title, form_url, image_url")
+          .order("sort_order", { ascending: true })
+          .then(({ data }) => setQuickAccessForms((data ?? []).length > 0 ? (data as { id: string; title: string; form_url: string; image_url?: string | null }[]) : FALLBACK_FORMS));
+      })
+    ).finally(() => setLoading(false));
   }, [router]);
 
   if (loading) {

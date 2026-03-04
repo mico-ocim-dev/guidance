@@ -18,25 +18,27 @@ export default function AdminTicketsPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.replace("/auth/login");
-        return;
-      }
-      const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
-      supabase.from("profiles").select("role").eq("id", user.id).single().then(({ data }) => {
-        if (data?.role !== "admin" && data?.role !== "staff" && !isAdminEmail) {
-          router.replace("/dashboard");
+    Promise.resolve(
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (!user) {
+          router.replace("/auth/login");
           return;
         }
-        setIsAdmin(true);
-        supabase.from("tickets").select("*").order("created_at", { ascending: false }).then(({ data }) => setTickets((data as Ticket[]) ?? []));
-        supabase.from("profiles").select("id, first_name, last_name").in("role", ["admin", "staff"]).then(({ data }) => {
-          const list = (data ?? []).map((p: { id: string; first_name: string; last_name: string }) => ({ id: p.id, full_name: `${p.first_name} ${p.last_name}`.trim() || null }));
-          setUsers(list);
+        const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
+        return supabase.from("profiles").select("role").eq("id", user.id).single().then(({ data }) => {
+          if (data?.role !== "admin" && data?.role !== "staff" && !isAdminEmail) {
+            router.replace("/dashboard");
+            return;
+          }
+          setIsAdmin(true);
+          supabase.from("tickets").select("*").order("created_at", { ascending: false }).then(({ data }) => setTickets((data as Ticket[]) ?? []));
+          supabase.from("profiles").select("id, first_name, last_name").in("role", ["admin", "staff"]).then(({ data }) => {
+            const list = (data ?? []).map((p: { id: string; first_name: string; last_name: string }) => ({ id: p.id, full_name: `${p.first_name} ${p.last_name}`.trim() || null }));
+            setUsers(list);
+          });
         });
-      });
-    }).finally(() => setLoading(false));
+      })
+    ).finally(() => setLoading(false));
   }, [router]);
 
   async function updateTicket(id: string, updates: Partial<Ticket>) {

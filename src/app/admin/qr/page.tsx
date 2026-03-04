@@ -28,20 +28,21 @@ export default function AdminQrFormsPage() {
         return;
       }
       const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
-      supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single()
-        .then(({ data }) => {
-          if (data?.role !== "admin" && data?.role !== "staff" && !isAdminEmail) {
-            router.replace("/dashboard");
-            return;
-          }
-          setIsStaff(true);
-          loadForms();
-        })
-        .finally(() => setLoading(false));
+      Promise.resolve(
+        supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single()
+          .then(({ data }) => {
+            if (data?.role !== "admin" && data?.role !== "staff" && !isAdminEmail) {
+              router.replace("/dashboard");
+              return;
+            }
+            setIsStaff(true);
+            loadForms();
+          })
+      ).finally(() => setLoading(false));
     });
   }, [router]);
 

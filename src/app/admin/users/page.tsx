@@ -26,25 +26,27 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.replace("/auth/login");
-        return;
-      }
-      const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
-      supabase.from("profiles").select("role").eq("id", user.id).single().then(({ data }) => {
-        if (data?.role !== "admin" && !isAdminEmail) {
-          router.replace("/dashboard");
+    Promise.resolve(
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (!user) {
+          router.replace("/auth/login");
           return;
         }
-        setIsAdmin(true);
-        supabase
-          .from("profiles")
-          .select("id, email, first_name, last_name, username, role")
-          .order("email")
-          .then(({ data }) => setProfiles((data as ProfileRow[]) ?? []));
-      });
-    }).finally(() => setLoading(false));
+        const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
+        return supabase.from("profiles").select("role").eq("id", user.id).single().then(({ data }) => {
+          if (data?.role !== "admin" && !isAdminEmail) {
+            router.replace("/dashboard");
+            return;
+          }
+          setIsAdmin(true);
+          supabase
+            .from("profiles")
+            .select("id, email, first_name, last_name, username, role")
+            .order("email")
+            .then(({ data }) => setProfiles((data as ProfileRow[]) ?? []));
+        });
+      })
+    ).finally(() => setLoading(false));
   }, [router]);
 
   async function updateRole(id: string, role: Role) {

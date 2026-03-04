@@ -16,13 +16,13 @@ export default function AdminAppointmentsPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    const p = supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) {
         router.replace("/auth/login");
         return;
       }
       const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
-      supabase
+      return supabase
         .from("profiles")
         .select("role")
         .eq("id", user.id)
@@ -33,14 +33,14 @@ export default function AdminAppointmentsPage() {
             return;
           }
           setIsStaff(true);
-          supabase
+          return supabase
             .from("appointments")
             .select("*")
             .order("created_at", { ascending: false })
             .then(({ data }) => setAppointments((data as Appointment[]) ?? []));
-        })
-        .finally(() => setLoading(false));
+        });
     });
+    Promise.resolve(p).finally(() => setLoading(false));
   }, [router]);
 
   async function updateStatus(id: string, status: Appointment["status"]) {

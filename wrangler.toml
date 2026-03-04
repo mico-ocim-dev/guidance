@@ -2,6 +2,7 @@
 # Build with: npx opennextjs-cloudflare build
 # Then: npx wrangler deploy
 name = "guidance"
+account_id = "ada27cb9b52244e9e21ef3e4cdf2eb96"
 main = ".open-next/worker.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
@@ -9,6 +10,12 @@ compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 [assets]
 directory = ".open-next/assets"
 binding = "ASSETS"
+
+# Custom domain: add guidance-lspu.com in Dashboard (Workers & Pages → guidance → Settings → Domains & routes).
+# Or uncomment below and set zone_id for guidance-lspu.com (from Cloudflare → guidance-lspu.com → Overview):
+# [[routes]]
+# pattern = "guidance-lspu.com/*"
+# zone_id = "YOUR_ZONE_ID_FOR_GUIDANCE_LSPU_COM"
 
 [[services]]
 binding = "WORKER_SELF_REFERENCE"

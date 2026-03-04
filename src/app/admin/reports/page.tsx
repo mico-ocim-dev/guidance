@@ -15,21 +15,23 @@ export default function AdminReportsPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.replace("/auth/login");
-        return;
-      }
-      const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
-      supabase.from("profiles").select("role").eq("id", user.id).single().then(({ data }) => {
-        if (data?.role !== "admin" && !isAdminEmail) {
-          router.replace("/dashboard");
+    Promise.resolve(
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (!user) {
+          router.replace("/auth/login");
           return;
         }
-        setIsAdmin(true);
-        supabase.from("monthly_reports").select("*").order("report_month", { ascending: false }).then(({ data }) => setReports((data ?? []) as typeof reports));
-      });
-    }).finally(() => setLoading(false));
+        const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
+        return supabase.from("profiles").select("role").eq("id", user.id).single().then(({ data }) => {
+          if (data?.role !== "admin" && !isAdminEmail) {
+            router.replace("/dashboard");
+            return;
+          }
+          setIsAdmin(true);
+          supabase.from("monthly_reports").select("*").order("report_month", { ascending: false }).then(({ data }) => setReports((data ?? []) as typeof reports));
+        });
+      })
+    ).finally(() => setLoading(false));
   }, [router]);
 
   async function generateMonthlyReport() {

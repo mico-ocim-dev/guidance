@@ -21,36 +21,38 @@ export default function AdminPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.replace("/auth/login");
-        return;
-      }
-      setUserId(user.id);
-      const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
-      supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single()
-        .then(({ data }) => {
-          if (data?.role !== "admin" && !isAdminEmail) {
-            router.replace("/dashboard");
-            return;
-          }
-          setIsAdmin(true);
-          supabase
-            .from("appointments")
-            .select("*")
-            .order("created_at", { ascending: false })
-            .then(({ data }) => setAppointments((data as Appointment[]) ?? []));
-          supabase
-            .from("document_requests")
-            .select("*")
-            .order("created_at", { ascending: false })
-            .then(({ data }) => setDocRequests((data as DocumentRequest[]) ?? []));
-        });
-    }).finally(() => setLoading(false));
+    Promise.resolve(
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (!user) {
+          router.replace("/auth/login");
+          return;
+        }
+        setUserId(user.id);
+        const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
+        return supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single()
+          .then(({ data }) => {
+            if (data?.role !== "admin" && !isAdminEmail) {
+              router.replace("/dashboard");
+              return;
+            }
+            setIsAdmin(true);
+            supabase
+              .from("appointments")
+              .select("*")
+              .order("created_at", { ascending: false })
+              .then(({ data }) => setAppointments((data as Appointment[]) ?? []));
+            supabase
+              .from("document_requests")
+              .select("*")
+              .order("created_at", { ascending: false })
+              .then(({ data }) => setDocRequests((data as DocumentRequest[]) ?? []));
+          });
+      })
+    ).finally(() => setLoading(false));
   }, [router]);
 
   async function updateAppointmentStatus(id: string, status: Appointment["status"]) {

@@ -44,13 +44,14 @@ export default function BookAppointmentPage() {
     supabase.auth.getUser().then(({ data: { user: u } }) => {
       setUser(u ?? null);
       if (u) {
-        supabase
-          .from("appointments")
-          .select("*")
-          .eq("user_id", u.id)
-          .order("created_at", { ascending: false })
-          .then(({ data }) => setAppointments((data as Appointment[]) ?? []))
-          .finally(() => setAppointmentsLoading(false));
+        Promise.resolve(
+          supabase
+            .from("appointments")
+            .select("*")
+            .eq("user_id", u.id)
+            .order("created_at", { ascending: false })
+            .then(({ data }) => setAppointments((data as Appointment[]) ?? []))
+        ).finally(() => setAppointmentsLoading(false));
       } else {
         setAppointmentsLoading(false);
       }
