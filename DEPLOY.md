@@ -65,7 +65,7 @@ After this, your app will be live at `https://your-app.vercel.app` (or your cust
    - **Site URL**: your Cloudflare Pages URL, e.g. `https://your-project.pages.dev`
    - **Redirect URLs**: add `https://your-project.pages.dev/**` and `https://your-project.pages.dev/auth/callback`
 
-Your app will be live at `https://your-project.pages.dev`. The repo already includes `@cloudflare/next-on-pages` and the `pages:build` script. If a previous build failed, in your Pages project go to **Settings** → **Builds & deployments** and set **Build command** to `npm run pages:build` and **Build output directory** to `.vercel/output/static`, then **Retry deployment**.
+Your app will be live at `https://your-project.pages.dev`. **Note:** If Cloudflare uses the built-in Next.js (Wrangler) flow, it will use **Build command:** `npm run build` and **Output directory:** `.next`; the repo uses Next.js 14.2.35+ so that flow works. If you use the older `pages:build` flow instead, set Build output directory to `.vercel/output/static`.
 
 ---
 
