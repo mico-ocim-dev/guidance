@@ -44,14 +44,12 @@ After this, your app will be live at `https://your-app.vercel.app` (or your cust
 
 1. **Push your code to GitHub** (same as Option 1).
 
-2. **Deploy on Cloudflare Pages**:
-   - Go to [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-   - Choose **mico-ocim-dev/guidance** (or your fork), branch **main**.
-   - **Build settings** — set these exactly:
-     - **Framework preset:** Next.js (Cloudflare)
-     - **Build command:** `npm run pages:build`
-     - **Build output directory:** `.vercel/output/static`
-     - **Root directory:** (leave blank)
+2. **Deploy on Cloudflare (Workers or Pages)**:
+   - Go to [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages** → **Create** → connect your Git repo (e.g. **mico-ocim-dev/guidance**), branch **main**.
+   - The project uses **OpenNext** for Cloudflare. Set the **Build** or **Deploy command** (the one that runs after `npm install`) to:
+     - **`npm run deploy`**
+     - This runs `opennextjs-cloudflare build` (creates `.open-next/`) then `opennextjs-cloudflare deploy` (runs `wrangler deploy`). The repo’s `wrangler.toml` points to `.open-next/worker.js` and `.open-next/assets`, so no extra build output directory is needed.
+   - If your dashboard has separate “Build command” and “Deploy command”: set **Build command** to `npm run opennext-build`, **Deploy command** to `npx wrangler deploy`.
    - Click **Save and Deploy**.
 
 3. **Environment variables** (Pages project → **Settings** → **Environment variables**):
@@ -65,7 +63,7 @@ After this, your app will be live at `https://your-app.vercel.app` (or your cust
    - **Site URL**: your Cloudflare Pages URL, e.g. `https://your-project.pages.dev`
    - **Redirect URLs**: add `https://your-project.pages.dev/**` and `https://your-project.pages.dev/auth/callback`
 
-Your app will be live at `https://your-project.pages.dev`. **Note:** If Cloudflare uses the built-in Next.js (Wrangler) flow, it will use **Build command:** `npm run build` and **Output directory:** `.next`; the repo uses Next.js 14.2.35+ so that flow works. If you use the older `pages:build` flow instead, set Build output directory to `.vercel/output/static`.
+Your app will be live at your Cloudflare Workers/Pages URL. **Important:** The deploy command must run `npm run deploy` (or `npm run opennext-build` then `npx wrangler deploy`) so that the OpenNext build runs first and produces `.open-next/` before Wrangler deploys.
 
 ---
 
