@@ -46,11 +46,12 @@ After this, your app will be live at `https://your-app.vercel.app` (or your cust
 
 2. **Deploy on Cloudflare Pages**:
    - Go to [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-   - Select your repo. Cloudflare may auto-detect Next.js.
-   - **Build settings** (if not auto-filled):
+   - Choose **mico-ocim-dev/guidance** (or your fork), branch **main**.
+   - **Build settings** — set these exactly:
      - **Framework preset:** Next.js (Cloudflare)
-     - **Build command:** `npx @cloudflare/next-on-pages@1`
+     - **Build command:** `npm run pages:build`
      - **Build output directory:** `.vercel/output/static`
+     - **Root directory:** (leave blank)
    - Click **Save and Deploy**.
 
 3. **Environment variables** (Pages project → **Settings** → **Environment variables**):
@@ -64,7 +65,7 @@ After this, your app will be live at `https://your-app.vercel.app` (or your cust
    - **Site URL**: your Cloudflare Pages URL, e.g. `https://your-project.pages.dev`
    - **Redirect URLs**: add `https://your-project.pages.dev/**` and `https://your-project.pages.dev/auth/callback`
 
-Your app will be live at `https://your-project.pages.dev`. For full Next.js compatibility on Cloudflare, see [Cloudflare Next.js docs](https://developers.cloudflare.com/pages/framework-guides/nextjs/). If the build fails, install the adapter locally: `npm install -D @cloudflare/next-on-pages`, commit, and push again.
+Your app will be live at `https://your-project.pages.dev`. The repo already includes `@cloudflare/next-on-pages` and the `pages:build` script. If a previous build failed, in your Pages project go to **Settings** → **Builds & deployments** and set **Build command** to `npm run pages:build` and **Build output directory** to `.vercel/output/static`, then **Retry deployment**.
 
 ---
 
