@@ -4,24 +4,36 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
-import type { Appointment, DocumentRequest } from "@/types/database";
+import admissionImage from "../../../admis.png";
 
-const FALLBACK_FORMS: { id: string; title: string; form_url: string; image_url?: string | null }[] = [
-  { id: "1", title: "Career Interest Inventory", form_url: "#" },
-  { id: "2", title: "Session Feedback Form", form_url: "#" },
-  { id: "3", title: "Counseling Case Log Sheet", form_url: "#" },
-  { id: "4", title: "Holistic Counseling Intake Form", form_url: "#" },
-  { id: "5", title: "Log Book", form_url: "#" },
+const ADMISSION_IMAGE_URL = admissionImage.src;
+
+const DASHBOARD_LINKS = [
+  {
+    href: "https://lspuinfooffice.my.canva.site/lspuadmission26-27?fbclid=IwY2xjawQtkqZleHRuA2FlbQIxMABicmlkETFrYkFUd1lNMWVocGJnNHBTc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHlu67eUx7nIiMsPWBdOwcK6bNmzdbRH16UQLrYgBG5S5ta96mXThG87vZpEg_aem_-hAXe-sDwWFdL4VZPqOQ5g",
+    label: "Admission",
+    subtitle: "Open admission guidelines",
+    imageUrl: ADMISSION_IMAGE_URL,
+    type: "admission",
+  },
+  {
+    href: "/document-requests",
+    label: "My Requests",
+    subtitle: "Quick access to your submitted requests",
+    imageUrl: "",
+    type: "quick",
+  },
+  {
+    href: "/appointments/book",
+    label: "Appointment",
+    subtitle: "Quick access to booking and schedule",
+    imageUrl: "",
+    type: "quick",
+  },
 ];
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
-  const [profile, setProfile] = useState<{ first_name?: string; last_name?: string; username?: string; role?: string } | null>(null);
-  const [canClaimAdmin, setCanClaimAdmin] = useState(false);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [docRequests, setDocRequests] = useState<DocumentRequest[]>([]);
-  const [quickAccessForms, setQuickAccessForms] = useState<{ id: string; title: string; form_url: string; image_url?: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,31 +44,6 @@ export default function DashboardPage() {
           router.replace("/auth/login");
           return;
         }
-        setUser(u);
-        supabase
-          .from("profiles")
-          .select("first_name, last_name, username, role")
-          .eq("id", u.id)
-          .single()
-          .then(({ data }) => setProfile(data ?? null));
-        supabase.rpc("can_claim_admin").then(({ data }) => setCanClaimAdmin(data === true));
-        supabase
-          .from("appointments")
-          .select("*")
-          .eq("user_id", u.id)
-          .order("created_at", { ascending: false })
-          .then(({ data }) => setAppointments((data as Appointment[]) ?? []));
-        supabase
-          .from("document_requests")
-          .select("*")
-          .eq("user_id", u.id)
-          .order("created_at", { ascending: false })
-          .then(({ data }) => setDocRequests((data as DocumentRequest[]) ?? []));
-        supabase
-          .from("qr_forms")
-          .select("id, title, form_url, image_url")
-          .order("sort_order", { ascending: true })
-          .then(({ data }) => setQuickAccessForms((data ?? []).length > 0 ? (data as { id: string; title: string; form_url: string; image_url?: string | null }[]) : FALLBACK_FORMS));
       })
     ).finally(() => setLoading(false));
   }, [router]);
@@ -68,82 +55,51 @@ export default function DashboardPage() {
       </div>
     );
   }
-  if (!user) return null;
-
-  const name = profile
-    ? [profile.first_name, profile.last_name].filter(Boolean).join(" ") || profile.username
-    : user.email;
-
-  const isAdmin = profile?.role === "admin";
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      {!isAdmin && (
-        <section>
-          <h2 className="text-2xl font-bold text-gray-800 mb-1">Quick Access - Forms & Links</h2>
-          <p className="text-gray-600 text-sm mb-6">
-            Scan the QR codes below to access forms (NSSIB, Excuse Slip, etc.).
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {(quickAccessForms.length ? quickAccessForms : FALLBACK_FORMS).map((form) => (
-              <div
-                key={form.id}
-                className="card flex flex-col items-center text-center w-full min-h-[300px] justify-between py-5"
-              >
-                <div className="w-full flex-shrink-0">
-                  <div className="min-h-[3.25rem] flex items-center justify-center px-1">
-                    <h3 className="font-semibold text-gray-800 text-sm leading-tight line-clamp-2">{form.title}</h3>
-                  </div>
+    <div className="w-full max-w-7xl mx-auto space-y-6">
+      <div className="rounded-2xl bg-gradient-to-r from-[#1E3A8A] to-[#1e293b] px-6 py-6 text-white shadow-lg">
+        <h1 className="text-2xl font-bold tracking-tight">User Dashboard</h1>
+        <p className="text-sm text-white/85 mt-1">Quick access to your admission, requests, and appointments.</p>
+      </div>
+
+      <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        {DASHBOARD_LINKS.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            target={item.href.startsWith("http") ? "_blank" : undefined}
+            rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+            className={`group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-[#1E3A8A]/40 transition ${
+              item.type === "admission" ? "xl:col-span-1" : ""
+            }`}
+          >
+            {item.type === "admission" ? (
+              <>
+                <div className="aspect-[16/10] bg-gray-100 border-b border-gray-100 flex items-center justify-center overflow-hidden">
+                  <img src={item.imageUrl} alt={item.label} className="w-full h-full object-cover" />
                 </div>
-                <a
-                  href={form.form_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-40 h-40 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden cursor-pointer hover:border-[#1E3A8A] hover:ring-2 hover:ring-[#1E3A8A]/20 transition"
-                  title="Click to open form"
-                >
-                  {form.image_url ? (
-                    <img src={form.image_url} alt="" className="w-full h-full object-contain pointer-events-none" />
-                  ) : (
-                    <span className="text-gray-400 text-xs">QR code</span>
-                  )}
-                </a>
-                <div className="w-full flex-shrink-0 flex flex-col items-center gap-0.5">
-                  <p className="text-sm font-semibold text-gray-700">Scan me!</p>
-                  <p className="text-xs text-gray-500">Scan or click to open form</p>
-                  <a
-                    href={form.form_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-[#1E3A8A] font-medium hover:underline mt-1"
-                  >
-                    Open link →
-                  </a>
+                <div className="p-4">
+                  <p className="text-xl font-semibold text-gray-800 group-hover:text-[#1E3A8A] leading-tight">{item.label}</p>
+                  <p className="text-sm text-[#1E3A8A] mt-1">Open form</p>
+                  <p className="text-xs text-gray-500 mt-1">{item.subtitle}</p>
+                </div>
+              </>
+            ) : (
+              <div className="p-5 min-h-[180px] flex flex-col justify-between">
+                <div className="w-10 h-10 rounded-lg bg-[#1E3A8A]/10 text-[#1E3A8A] flex items-center justify-center font-bold">
+                  {item.label === "My Requests" ? "R" : "A"}
+                </div>
+                <div>
+                  <p className="text-xl font-semibold text-gray-800 group-hover:text-[#1E3A8A] leading-tight">{item.label}</p>
+                  <p className="text-sm text-[#1E3A8A] mt-1">Quick access</p>
+                  <p className="text-xs text-gray-500 mt-1">{item.subtitle}</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {(canClaimAdmin && profile?.role !== "admin") && (
-        <div className="card border-amber-200 bg-amber-50/50">
-          <p className="text-gray-700 mb-2">You can claim admin if you are the first user.</p>
-          <button
-            type="button"
-            onClick={async () => {
-              const supabase = createClient();
-              await supabase.from("profiles").update({ role: "admin" }).eq("id", user!.id);
-              router.refresh();
-              setProfile((p) => (p ? { ...p, role: "admin" } : null));
-              setCanClaimAdmin(false);
-            }}
-            className="border-2 border-amber-500 text-amber-700 hover:bg-amber-100 font-semibold py-2 px-4 rounded-lg transition"
-          >
-            Claim admin
-          </button>
-        </div>
-      )}
+            )}
+          </Link>
+        ))}
+      </section>
     </div>
   );
 }
