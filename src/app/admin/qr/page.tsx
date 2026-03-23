@@ -221,86 +221,84 @@ export default function AdminQrFormsPage() {
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {forms.map((form) => (
-          <div key={form.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-wrap items-center gap-6">
-            <div className="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200 shrink-0 overflow-hidden">
+          <div
+            key={form.id}
+            className="group relative bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+          >
+            <div className="aspect-square bg-gray-50 flex items-center justify-center p-4 border-b border-gray-100">
               {form.image_url ? (
-                <img src={form.image_url} alt="" className="w-full h-full object-contain" />
+                <img src={form.image_url} alt="" className="max-w-full max-h-full object-contain" />
               ) : (
-                <span className="text-gray-400 text-xs text-center px-2">QR code</span>
+                <span className="text-gray-400 text-sm">QR code</span>
               )}
             </div>
-            <div className="flex-1 min-w-0">
-              {editingId === form.id ? (
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    value={formTitle}
-                    onChange={(e) => setFormTitle(e.target.value)}
-                    className="input-field"
-                    placeholder="Title"
-                  />
-                  <input
-                    type="url"
-                    value={formUrl}
-                    onChange={(e) => setFormUrl(e.target.value)}
-                    className="input-field"
-                    placeholder="Form URL"
-                  />
-                  <div className="flex flex-wrap gap-2 items-center">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => { setImageFile(e.target.files?.[0] ?? null); setImageUrl(""); }}
-                      className="text-sm text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-[#1E3A8A] file:text-white file:text-sm"
-                    />
-                    <input
-                      type="url"
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      className="input-field flex-1 min-w-[180px]"
-                      placeholder="Or image URL"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <button type="button" onClick={handleSave} disabled={uploading} className="btn-primary text-sm">{uploading ? "Saving…" : "Save"}</button>
-                    <button type="button" onClick={() => { setEditingId(null); setFormTitle(""); setFormUrl(""); setImageUrl(""); setImageFile(null); }} className="btn-secondary text-sm">Cancel</button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <h3 className="font-semibold text-gray-800">{form.title}</h3>
-                  <a href={form.form_url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#1E3A8A] hover:underline break-all">
-                    {form.form_url}
-                  </a>
-                </>
-              )}
+            <div className="p-4">
+              <h3 className="font-semibold text-gray-800 truncate" title={form.title}>{form.title}</h3>
+              <a
+                href={form.form_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-[#1E3A8A] hover:underline truncate block mt-0.5"
+                title={form.form_url}
+              >
+                Open form
+              </a>
             </div>
-            {editingId !== form.id && (
-              <div className="flex gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => { setEditingId(form.id); setFormTitle(form.title); setFormUrl(form.form_url); setImageUrl(form.image_url || ""); setImageFile(null); setShowAdd(false); }}
-                  className="border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(form.id)}
-                  className="border border-red-200 text-red-600 font-medium py-2 px-4 rounded-lg hover:bg-red-50 transition"
-                >
-                  Delete
-                </button>
-              </div>
-            )}
+            <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                type="button"
+                onClick={() => { setEditingId(form.id); setFormTitle(form.title); setFormUrl(form.form_url); setImageUrl(form.image_url || ""); setImageFile(null); setShowAdd(false); }}
+                className="p-2 rounded-lg bg-white/95 shadow border border-gray-200 text-gray-600 hover:bg-[#1E3A8A] hover:text-white transition-colors"
+                aria-label="Edit"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDelete(form.id)}
+                className="p-2 rounded-lg bg-white/95 shadow border border-gray-200 text-gray-600 hover:bg-red-500 hover:text-white transition-colors"
+                aria-label="Delete"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </button>
+            </div>
           </div>
         ))}
         {forms.length === 0 && !showAdd && (
-          <p className="text-gray-500 text-center py-8">No forms yet. Click &quot;+ Add QR / Form&quot; to add one.</p>
+          <p className="col-span-full text-gray-500 text-center py-12">No forms yet. Click &quot;+ Add QR / Form&quot; to add one.</p>
         )}
       </div>
+
+      {/* Edit modal */}
+      {editingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => { setEditingId(null); setFormTitle(""); setFormUrl(""); setImageUrl(""); setImageFile(null); }}>
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-gray-800">Edit QR / Form</h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+              <input type="text" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} className="input-field w-full" placeholder="e.g. Career Interest Inventory" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Form URL</label>
+              <input type="url" value={formUrl} onChange={(e) => setFormUrl(e.target.value)} className="input-field w-full" placeholder="https://docs.google.com/forms/..." />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">QR image (optional)</label>
+              <input type="file" accept="image/*" onChange={(e) => { setImageFile(e.target.files?.[0] ?? null); setImageUrl(""); }} className="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-[#1E3A8A] file:text-white file:font-medium hover:file:bg-[#1e3a8a]/90" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Or image URL</label>
+              <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} onFocus={() => setImageFile(null)} className="input-field w-full" placeholder="https://... or leave blank" />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <button type="button" onClick={handleSave} disabled={!formTitle.trim() || !formUrl.trim() || uploading} className="btn-primary flex-1">{uploading ? "Saving…" : "Save"}</button>
+              <button type="button" onClick={() => { setEditingId(null); setFormTitle(""); setFormUrl(""); setImageUrl(""); setImageFile(null); }} className="btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

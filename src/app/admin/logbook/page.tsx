@@ -74,7 +74,7 @@ export default function AdminLogbookPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-gco-primary">Digital Logbook</h1>
-        <Link href="/admin" className="btn-secondary">Back to Admin</Link>
+        <Link href="/admin/dashboard" className="btn-secondary">Back to Dashboard</Link>
       </div>
 
       <div className="card">

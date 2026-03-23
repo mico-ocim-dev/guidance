@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { TrackRequestModal } from "@/components/TrackRequestModal";
 
@@ -103,6 +103,7 @@ function getPageTitle(pathname: string): string {
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [profile, setProfile] = useState<{ role?: string; first_name?: string; last_name?: string } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -162,9 +163,9 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const staffNav = [
     { href: "/admin/dashboard", label: "Dashboard", icon: ICONS.chart },
     { href: "/admin/qr", label: "QR Forms", icon: ICONS.qr },
-    { href: "/admin", label: "Admin", icon: ICONS.clipboard },
     { href: "/admin/document-requests", label: "Document Requests", icon: ICONS.document },
     { href: "/admin/appointments", label: "Appointments", icon: ICONS.calendar },
+    { href: "/admin/tickets", label: "Help Desk", icon: ICONS.headset },
     { href: "/admin/reports", label: "Reports", icon: ICONS.report },
     { href: "/admin/users", label: "User roles", icon: ICONS.users },
   ];
@@ -203,7 +204,11 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                 <Link
                   key={href}
                   href={href}
-                  onClick={() => setSidebarOpen(false)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSidebarOpen(false);
+                    router.push(href);
+                  }}
                   className={`flex items-center gap-3 min-h-[44px] py-3 px-3 rounded-xl text-sm font-medium transition-all duration-200 active:scale-[0.98] ${
                     active
                       ? "bg-amber-400 text-[#1e3a8a] shadow-md shadow-amber-400/25"
@@ -218,7 +223,11 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             {isStaff && (
               <Link
                 href="/appointments/book"
-                onClick={() => setSidebarOpen(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setSidebarOpen(false);
+                  router.push("/appointments/book");
+                }}
                 className="flex items-center gap-3 min-h-[44px] px-3 py-3 rounded-xl text-sm font-medium text-amber-300 hover:bg-white/10 hover:text-amber-200 transition-all duration-200 mt-2 border border-amber-400/30 active:scale-[0.98]"
               >
                 {ICONS.plusCalendar}

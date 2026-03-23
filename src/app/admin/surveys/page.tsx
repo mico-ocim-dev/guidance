@@ -67,7 +67,7 @@ export default function AdminSurveysPage() {
         <h1 className="text-2xl font-bold text-gco-primary">Surveys</h1>
         <div className="flex gap-2">
           <button type="button" onClick={handleExportSummary} className="btn-secondary text-sm">Export summary</button>
-          <Link href="/admin" className="btn-secondary">Back to Admin</Link>
+          <Link href="/admin/dashboard" className="btn-secondary">Back to Dashboard</Link>
         </div>
       </div>
 

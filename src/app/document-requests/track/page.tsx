@@ -43,6 +43,7 @@ type TicketResult = {
 type AppointmentResult = {
   type: "appointment";
   id: string;
+  tracking_number: string;
   full_name: string;
   email: string;
   preferred_date: string;
@@ -81,7 +82,7 @@ export default function TrackRequestPage() {
     const isId = isUuid(q);
 
     try {
-      const [docRes, ticketByNumRes, ticketByIdRes, appointmentRes] = await Promise.all([
+      const [docRes, ticketByNumRes, ticketByIdRes, appointmentByIdRes, appointmentByTrackingRes] = await Promise.all([
         supabase
           .from("document_requests")
           .select("tracking_number, requester_name, status, created_at, document_type")
@@ -104,8 +105,15 @@ export default function TrackRequestPage() {
         isId
           ? supabase
               .from("appointments")
-              .select("id, full_name, email, preferred_date, preferred_time, status, appointment_type, created_at")
+              .select("id, tracking_number, full_name, email, preferred_date, preferred_time, status, appointment_type, created_at")
               .eq("id", q)
+              .maybeSingle()
+          : { data: null, error: null },
+        q.length >= 2 && !isId
+          ? supabase
+              .from("appointments")
+              .select("id, tracking_number, full_name, email, preferred_date, preferred_time, status, appointment_type, created_at")
+              .ilike("tracking_number", upper)
               .maybeSingle()
           : { data: null, error: null },
       ]);
@@ -121,8 +129,9 @@ export default function TrackRequestPage() {
       if (ticketData) {
         found.push({ type: "ticket", ...ticketData } as TicketResult);
       }
-      if (appointmentRes.data) {
-        found.push({ type: "appointment", ...appointmentRes.data } as AppointmentResult);
+      const appointmentData = appointmentByIdRes.data ?? appointmentByTrackingRes.data;
+      if (appointmentData) {
+        found.push({ type: "appointment", ...appointmentData } as AppointmentResult);
       }
 
       setResults(found);
@@ -154,7 +163,7 @@ export default function TrackRequestPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="input-field w-full"
-              placeholder="e.g. GCO-123456 or ticket/appointment ID"
+              placeholder="e.g. GCO-123456, APT-123456, or ticket ID"
             />
           </div>
           <button type="submit" className="btn-primary w-full" disabled={loading}>
@@ -169,7 +178,7 @@ export default function TrackRequestPage() {
             ) : (
               results.map((r, idx) => (
                 <div
-                  key={r.type + (r.type === "document" ? r.tracking_number : r.id) + idx}
+                  key={r.type + (r.type === "document" ? r.tracking_number : r.type === "appointment" ? r.tracking_number : r.id) + idx}
                   className="bg-gray-50 rounded-lg p-4 space-y-2"
                 >
                   {r.type === "document" && (
@@ -201,6 +210,7 @@ export default function TrackRequestPage() {
                   {r.type === "appointment" && (
                     <>
                       <p className="text-xs font-semibold text-[#1E3A8A] uppercase tracking-wide">Appointment</p>
+                      <p><span className="text-gray-500">Tracking:</span> {r.tracking_number}</p>
                       <p><span className="text-gray-500">Name:</span> {r.full_name}</p>
                       <p><span className="text-gray-500">Type:</span> {r.appointment_type}</p>
                       <p><span className="text-gray-500">Date:</span> {r.preferred_date}</p>

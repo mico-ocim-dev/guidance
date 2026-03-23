@@ -31,6 +31,7 @@ export interface Profile {
 
 export interface Appointment {
   id: string;
+  tracking_number: string;
   user_id: string | null;
   full_name: string;
   email: string;

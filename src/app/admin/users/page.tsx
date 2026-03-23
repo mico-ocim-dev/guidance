@@ -34,8 +34,8 @@ export default function AdminUsersPage() {
         }
         const isAdminEmail = user.email?.toLowerCase() === "admin@demo.com";
         return supabase.from("profiles").select("role").eq("id", user.id).single().then(({ data }) => {
-          if (data?.role !== "admin" && !isAdminEmail) {
-            router.replace("/dashboard");
+if (data?.role !== "admin" && !isAdminEmail) {
+          router.replace("/dashboard");
             return;
           }
           setIsAdmin(true);
@@ -67,7 +67,7 @@ export default function AdminUsersPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-[#1E3A8A]">User roles</h1>
-        <Link href="/admin" className="btn-secondary">Back to Admin</Link>
+        <Link href="/admin/dashboard" className="btn-secondary">Back to Dashboard</Link>
       </div>
 
       <div className="card">

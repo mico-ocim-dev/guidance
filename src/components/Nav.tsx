@@ -53,9 +53,9 @@ export function Nav() {
       </Link>
       {isAdmin && (
         <Link
-          href="/admin"
+          href="/admin/dashboard"
           className={`px-3 py-1.5 rounded text-sm font-medium transition ${
-            pathname === "/admin"
+            pathname.startsWith("/admin")
               ? "bg-white/20 text-white"
               : "text-white/90 hover:bg-white/10 hover:text-white"
           }`}
